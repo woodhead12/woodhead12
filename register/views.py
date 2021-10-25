@@ -14,10 +14,10 @@ def register(request):
             return HttpResponse('注册成功')
         else:
             error = form.errors.get('__all__')
-            return render(request, 'register.html', {'form': form, 'error': error})
+            return render(request, 'register/register.html', {'form': form, 'error': error})
 
     form = RegisterUserModelForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'register/register.html', {'form': form})
 
 
 def send_code(request):

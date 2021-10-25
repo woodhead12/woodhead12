@@ -20,9 +20,9 @@ from register import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # ================ 测试app
-    re_path(r'^register/', include('register.urls', namespace='register'), app_name='register'),
+    re_path(r'^register/', include('register.urls', namespace='register')),
     re_path(r'^phone/$', views.send_code),
 
     # ================ 注册
-    re_path(r'^/', include('web.urls'))
+    re_path(r'^', include('web.urls'))
 ]
