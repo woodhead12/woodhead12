@@ -1,0 +1,73 @@
+{% extends 'layout/basic.html' %}
+
+{% block content %}
+<div class="account">
+    <form>
+        {% csrf_token %}
+        {% for field in form %}
+
+            {% if field.name == 'code' %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="clearfix">
+                        <div class="col-md-6" style="padding-left: 0">
+                            {{ field }}
+                        </div>
+                        <div class="col-md-6">
+                            <input type="button" class="btn btn-default" id="for_code" value="获取验证码"/>
+                        </div>
+                    </div>
+
+                </div>
+
+            {% else %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+            {% endif %}
+
+        {% endfor %}
+
+        <button type="submit" class="btn btn-default" id="for_register">注册</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    $(function () {
+        let timer = null;
+        let num = 60;
+        $('#for_code').click(function () {
+            if (timer !== null) {
+                alert('请勿重复点击!')
+            } else {
+                $.ajax({
+                    url: '/phone/',
+                    method: 'post',
+                    data: {
+                        phone: $('#id_phone').val(),
+                    },
+                    success: function (info) {
+                        console.log(info);
+                        if (info === 'OK!') {
+
+                            timer = setInterval(function () {
+                                num--;
+                                $('#for_code').addClass('disabled');
+                                $('#for_code').val('重新发送验证码' + '(' + String(num) + 's)');
+                                if (num === 1) {
+                                    $('#for_code').removeClass('disabled');
+                                    $('#for_code').val('获取验证码');
+                                    clearInterval(timer);
+                                }
+                            }, 1000)
+                        }
+                    }
+                })
+            }
+        })
+    })
+</script>
+{% endblock %}
