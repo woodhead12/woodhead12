@@ -1,0 +1,24 @@
+.account {
+    width: 400px;
+    margin-top: 5%;
+    margin-left: 70%;
+    padding: 10px 30px 30px 30px;
+    border: 1px solid #f0f0f0;
+    -webkit-box-shadow: 5px 10px 10px rgba(0, 0, 0, .05);
+    box-shadow: 5px 10px 10px rgba(0, 0, 0, .05);
+}
+
+.title {
+    font-size: 25px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.error-msg {
+    color: red;
+    position: absolute;
+}
+
+.extra-padding {
+    padding-bottom: 10px;
+}

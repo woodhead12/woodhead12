@@ -1,11 +1,20 @@
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
-from web.forms.account import RegisterUserModelForm, CodeCheckForm
+from web.forms.account import RegisterUserModelForm, CodeCheckForm \
+    , SmsLoginForm
 
 
 # 注册
 def reg(request):
     form = RegisterUserModelForm()
+    if request.method == 'POST':
+        form = RegisterUserModelForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': True})
+        else:
+            return JsonResponse({'status': False, 'error': form.errors})
+
     return render(request, 'register.html', {'form': form})
 
 
@@ -16,3 +25,9 @@ def send_code(request):
     if form.is_valid():
         return JsonResponse({'status': True})
     return JsonResponse({'status': False, 'error': form.errors})
+
+
+# 短信登录
+def sms_login(request):
+    form = SmsLoginForm()
+    return render(request, 'login.html', {'form': form})

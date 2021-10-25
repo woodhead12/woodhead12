@@ -7,11 +7,12 @@
 {% block content %}
     <div class="account">
         <div class="title">
-            注册
+            短信登录
         </div>
         <form id="form" method="POST" novalidate>
             {% csrf_token %}
             {% for field in form %}
+
                 {% if field.name == 'code' %}
                     <div class="form-group extra-padding">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -37,20 +38,14 @@
 
             {% endfor %}
 
-            <input type="button" class="btn btn-default" id="for_register" value="注册"/>
+            <input type="button" class="btn btn-default" id="for_login" value="登录"/>
         </form>
     </div>
 {% endblock %}
-
 {% block js %}
     <script>
         $(function () {
-            bindClickGetCode();
-            bindClickSubmit()
-        });
 
-        <!-- 点击获取验证码 ajax -->
-        function bindClickGetCode(){
             $('#for_code').click(function () {
                 $('.error-msg').empty();
 
@@ -61,6 +56,7 @@
                     method: 'get',
                     data: {
                         phone: $('#id_phone').val(),
+                        type: 'login',
                     },
                     dataType: "JSON",
                     success: function (info) {
@@ -84,30 +80,8 @@
                     }
                 })
             })
-        }
 
-        <!-- 点击提交注册信息 ajax -->
-        function bindClickSubmit(){
-            $('#for_register').click(function () {
-                $('.error-msg').empty();
-                $.ajax({
-                    url: {% url 'reg' %},
-                    method: 'post',
-                    data: $('#form').serialize(),
-                    dataType: 'JSON',
-                    success: function (info) {
-                        console.log(info)
-                        if (info.status){
-                            location.href = {% url 'sms_login' %}
-                        }
-                        else{
-                            $.each(info.error, function(key, value){
-                                $('#id_' + key).next().text(value[0]);
-                            })
-                        }
-                    }
-                })
-            })
-        }
+        })
+
     </script>
 {% endblock %}

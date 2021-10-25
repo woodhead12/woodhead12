@@ -1,5 +1,6 @@
 import re
 import random
+import hashlib
 from django import forms
 from web.models import RegisterUserInfo
 from django_redis import get_redis_connection
@@ -16,40 +17,65 @@ def mobile_validate(value):
         return True
 
 
-class RegisterUserModelForm(forms.ModelForm):
-    code = forms.CharField(label='验证码')
-    phone = forms.CharField(label='手机号', validators=[mobile_validate, ], )
-    pwd = forms.CharField(label='密码', widget=forms.PasswordInput())
-    re_pwd = forms.CharField(label='重复密码', widget=forms.PasswordInput())
+class WidgetAttrsForm:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = '请输入{}'.format(field.label)
+
+
+class RegisterUserModelForm(WidgetAttrsForm, forms.ModelForm):
+    code = forms.CharField(label='验证码', error_messages={'required': '当前字段必填!'})
+    phone = forms.CharField(label='手机号', validators=[mobile_validate, ], error_messages={'required': '当前字段必填!'})
+    pwd = forms.CharField(label='密码', widget=forms.PasswordInput(), error_messages={'required': '当前字段必填!'})
+    re_pwd = forms.CharField(label='重复密码', widget=forms.PasswordInput(), error_messages={'required': '当前字段必填!'})
 
     class Meta:
         model = RegisterUserInfo
         fields = ['usr', 'email', 'pwd', 're_pwd', 'phone', 'code']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def clean_usr(self):
+        val = self.cleaned_data.get('usr')
+        obj = RegisterUserInfo.objects.filter(usr=val).exists()
+        if obj:
+            raise ValidationError('当前用户名已被注册!')
 
-        for name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = '请输入{}'.format(field.label)
+        return val
+
+    def clean_pwd(self):
+        val = self.cleaned_data.get('pwd')
+        encrypt_val = hashlib.md5(val.encode('utf-8')).hexdigest()
+
+        return encrypt_val
+
+    def clean_re_pwd(self):
+        val = self.cleaned_data.get('re_pwd')
+        encrypt_re_val = hashlib.md5(val.encode('utf-8')).hexdigest()
+
+        if encrypt_re_val != self.cleaned_data.get('pwd'):
+            raise ValidationError('两次输入的密码不一致!')
+
+        return encrypt_re_val
 
     def clean_phone(self):
         val = self.cleaned_data.get('phone')
         if mobile_validate(val):
             return val
         else:
-            raise ValidationError("手机格式错误")
+            self.add_error('phone', '输入手机号格式错误!')
+            return val
 
-    def clean(self):
-        pwd = self.cleaned_data.get('pwd')
-        re_pwd = self.cleaned_data.get('pwd')
-        if pwd and re_pwd:
-            if pwd == re_pwd:
-                return self.cleaned_data
-            else:
-                raise ValidationError('两次输入密码不一致')
-        else:
-            return self.cleaned_data
+    def clean_code(self):
+        val = self.cleaned_data.get('code')
+        phone = self.cleaned_data.get('phone')
+        conn = get_redis_connection()
+        redis_code = conn.get(phone).decode('utf-8')
+
+        if val.strip() != redis_code:
+            raise ValidationError('当前验证码错误或已过期!')
+
+        return val
 
 
 class CodeCheckForm(forms.Form):
@@ -58,6 +84,7 @@ class CodeCheckForm(forms.Form):
 
     def __init__(self, request, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.request = request
 
     def clean_phone(self):
         """
@@ -66,6 +93,11 @@ class CodeCheckForm(forms.Form):
         clean_phone = self.cleaned_data['phone']
         # 从数据库中校验手机号
         result = RegisterUserInfo.objects.filter(phone=clean_phone).exists()
+
+        # 短信登录验证和注册验证码公用一个校验 但校验判断条件不同
+        if self.request.GET.get('type') == 'login':
+            if not result:
+                raise ValidationError('当前手机号未注册!')
 
         if result:
             raise ValidationError("当前手机号已注册!")
@@ -79,3 +111,28 @@ class CodeCheckForm(forms.Form):
         conn.set(clean_phone, code, ex=60)
 
         return clean_phone
+
+
+class SmsLoginForm(WidgetAttrsForm, forms.Form):
+    phone = forms.CharField(label='手机号', validators=[mobile_validate, ])
+    code = forms.CharField(label='验证码')
+
+    def clean_phone(self):
+        phone = self.cleaned_data.get('phone')
+        usr = RegisterUserInfo.objects.filter(phone=phone).exists()
+        if not usr:
+            raise ValidationError('当前手机号未注册, 请注册后登录!')
+
+        return phone
+
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        phone = self.cleaned_data.get('phone')
+
+        conn = get_redis_connection()
+        redis_code = conn.get(phone).decode('utf-8')
+
+        if redis_code != code:
+            raise ValidationError('验证码错误或者过期, 请重新获取验证码')
+
+        return code
