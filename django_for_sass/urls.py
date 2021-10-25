@@ -15,12 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from register import views
+from app1 import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # ================ 测试app
-    re_path(r'^register/', include('register.urls', namespace='register')),
+    re_path(r'^app1/', include('app1.urls', namespace='app1')),
     re_path(r'^phone/$', views.send_code),
 
     # ================ 注册

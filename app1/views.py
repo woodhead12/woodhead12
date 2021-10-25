@@ -1,6 +1,6 @@
 from django.shortcuts import render, HttpResponse
 from django_redis import get_redis_connection
-from register.forms import RegisterUserModelForm
+from app1.forms import RegisterUserModelForm
 from utils.tencent import sms
 
 
