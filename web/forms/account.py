@@ -4,6 +4,7 @@ import hashlib
 from django import forms
 from web.models import RegisterUserInfo
 from django_redis import get_redis_connection
+from django.db.models import Q
 
 from utils.tencent import sms
 from django.core.exceptions import ValidationError
@@ -129,10 +130,45 @@ class SmsLoginForm(WidgetAttrsForm, forms.Form):
         code = self.cleaned_data.get('code')
         phone = self.cleaned_data.get('phone')
 
+        # 到redis缓存中校验验证码
         conn = get_redis_connection()
         redis_code = conn.get(phone).decode('utf-8')
 
         if redis_code != code:
             raise ValidationError('验证码错误或者过期, 请重新获取验证码')
+
+        return code
+
+
+class NormalLoginForm(WidgetAttrsForm, forms.Form):
+    email_or_phone = forms.CharField(label='邮箱或手机号')
+    pwd = forms.CharField(label='密码')
+    code = forms.CharField(label='验证码')
+
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = request
+
+    def clean_email_or_phone(self):
+        usr = self.cleaned_data.get('email_or_phone')
+        # 密码查询 输入的必须是密文的密码
+        pwd = hashlib.md5(self.cleaned_data.get('pwd').encode('utf-8')).hexdigest()
+        # 组合搜索条件 输入手机或者邮箱来查询用户对象
+        usr_obj = RegisterUserInfo.objects.filter(Q(email=usr)|Q(phone=usr)).filter(pwd=pwd).first()
+        if not usr_obj:
+            return ValidationError('当前用户名不存在或密码错误!')
+
+        return usr_obj
+
+    def clean_code(self):
+        # 将输入的验证码和session中存储的验证码进行比较
+        code = self.cleaned_data.get('code')
+        session_code = self.request.session.get('code')
+
+        if not session_code:
+            raise ValidationError('当前图片验证码已经过期!')
+
+        if code.lower() != session_code.lower():
+            raise ValidationError('验证码输入错误!请重新输入!')
 
         return code

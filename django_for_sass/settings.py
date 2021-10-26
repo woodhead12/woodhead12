@@ -47,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'web.Middlewares.middleware.LoginMiddlewareMixin'
 ]
 
 ROOT_URLCONF = 'django_for_sass.urls'

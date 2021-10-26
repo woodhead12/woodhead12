@@ -7,7 +7,7 @@
 {% block content %}
     <div class="account">
         <div class="title">
-            短信登录
+            登录
         </div>
         <form id="form" method="POST" novalidate>
             {% csrf_token %}
@@ -22,7 +22,7 @@
 
                             </div>
                             <div class="col-md-6">
-                                <input type="button" class="btn btn-default" id="for_code" value="获取验证码"/>
+                                <img src="{% url 'code' %}" style="float: right" alt="" id="code">
                             </div>
                         </div>
 
@@ -32,56 +32,26 @@
                     <div class="form-group extra-padding">
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
-                        <span class="error-msg"></span>
+                        <span class="error-msg">{{ field.error.0 }}</span>
                     </div>
                 {% endif %}
 
             {% endfor %}
+            <div>
+                <button type="submit" class="btn btn-default" id="normal_login">登录</button>
+                <a href="{% url 'sms_login' %}" style="float: right; padding-top: 7px">短信验证码登录?</a>
+            </div>
 
-            <input type="button" class="btn btn-default" id="for_login" value="登录"/>
         </form>
     </div>
 {% endblock %}
 {% block js %}
     <script>
         $(function () {
-
-            $('#for_code').click(function () {
-                $('.error-msg').empty();
-
-                let timer = null;
-                let num = 60;
-                $.ajax({
-                    url: {% url 'sms' %},
-                    method: 'get',
-                    data: {
-                        phone: $('#id_phone').val(),
-                        type: 'login',
-                    },
-                    dataType: "JSON",
-                    success: function (info) {
-                        if (info.status) {
-                            timer = setInterval(function () {
-                                num--;
-                                $('#for_code').prop('disabled', true);
-                                $('#for_code').val('重新发送验证码' + '(' + String(num) + 's)');
-                                if (num < 1) {
-                                    $('#for_code').prop('disabled', false);
-                                    $('#for_code').val('获取验证码');
-                                    clearInterval(timer);
-                                }
-                            }, 1000)
-                        } else {
-                            console.log(info);
-                            $.each(info.error, function (key, value) {
-                                $('#id_' + key).next().text(value[0])
-                            })
-                        }
-                    }
-                })
+            $('#code').click(function () {
+                let oldSrc = $(this).attr('src');
+                $(this).attr('src', oldSrc + '?');
             })
-
         })
-
     </script>
 {% endblock %}
