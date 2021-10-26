@@ -142,7 +142,7 @@ class SmsLoginForm(WidgetAttrsForm, forms.Form):
 
 class NormalLoginForm(WidgetAttrsForm, forms.Form):
     email_or_phone = forms.CharField(label='邮箱或手机号')
-    pwd = forms.CharField(label='密码')
+    pwd = forms.CharField(label='密码', widget=forms.PasswordInput(render_value=True), )
     code = forms.CharField(label='验证码')
 
     def __init__(self, request=None, *args, **kwargs):
