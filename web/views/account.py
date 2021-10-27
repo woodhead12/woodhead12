@@ -1,7 +1,9 @@
+import uuid
 from django.shortcuts import render, HttpResponse, redirect
 from django.http import JsonResponse
 from web.forms.account import RegisterUserModelForm, CodeCheckForm \
     , SmsLoginForm, NormalLoginForm
+from web import models
 from utils.pic_for_pillow.code_pic import check_code
 
 
@@ -11,7 +13,17 @@ def reg(request):
     if request.method == 'POST':
         form = RegisterUserModelForm(data=request.POST)
         if form.is_valid():
-            form.save()
+            instance = form.save()
+            # 创建一条交易记录 即给每个新用户一个免费的存储
+
+            service = models.ProjectManageService.objects.get(type=1, desc='个人免费版')
+
+            uid = str(uuid.uuid4())
+
+            # 未支付的订单变成已交易状态就可以设置开始时间
+            models.PayingRecord.objects.create(type=2, order=uid, real_pay=0, begin=None, count=0,
+                                               end=None, service=service, usr=instance)
+
             return JsonResponse({'status': True})
         else:
             return JsonResponse({'status': False, 'error': form.errors})

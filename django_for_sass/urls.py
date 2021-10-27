@@ -22,6 +22,6 @@ urlpatterns = [
     # ================ 测试app
     re_path(r'^app1/', include('app1.urls', namespace='app1')),
 
-    # ================ 注册
+    # ================ 主app
     re_path(r'^', include('web.urls'))
 ]

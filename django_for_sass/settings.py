@@ -125,6 +125,7 @@ CACHES = {
 
 }
 
+WITHOUT_AUTH_URL = ['/login/', '/reg/', '/index/', '/sms/login/', '/phone/', '/code/', '/exit/']
 
 try:
     from .local import *
