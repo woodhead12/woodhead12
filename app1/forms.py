@@ -1,6 +1,6 @@
 import re
 from django import forms
-from .models import RegisterUserInfo
+from .models import RegisterUserInfo, ProjectDetail
 from django.core.exceptions import ValidationError
 
 
@@ -36,16 +36,18 @@ class RegisterUserModelForm(forms.ModelForm):
         else:
             raise ValidationError("手机格式错误")
 
-    def clean(self):
-        pwd = self.cleaned_data.get('pwd')
-        re_pwd = self.cleaned_data.get('pwd')
-        if pwd and re_pwd:
-            if pwd == re_pwd:
-                return self.cleaned_data
-            else:
-                raise ValidationError('两次输入密码不一致')
-        else:
-            return self.cleaned_data
 
+class ProjectForm(forms.ModelForm):
+    desc = forms.CharField(label='项目描述', widget=forms.Textarea(attrs={'cols': '40', 'rows': '20'}))
 
+    class Meta:
+        model = ProjectDetail
+        fields = ['name', 'desc']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            field.widget.attrs['placeholder'] = '请输入{}'.format(field.label)
 

@@ -16,7 +16,7 @@
 </head>
 <body>
 <div class="account">
-    <form>
+    <form method="post" novalidate>
         {% csrf_token %}
         {% for field in form %}
 
@@ -56,8 +56,8 @@
                 alert('请勿重复点击!')
             } else {
                 $.ajax({
-                    url: '/phone/',
-                    method: 'post',
+                    url: '/app1/phone/',
+                    method: 'get',
                     data: {
                         phone: $('#id_phone').val(),
                     },
