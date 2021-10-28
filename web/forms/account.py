@@ -29,7 +29,8 @@ class WidgetAttrsForm:
 class RegisterUserModelForm(WidgetAttrsForm, forms.ModelForm):
     code = forms.CharField(label='验证码', error_messages={'required': '当前字段必填!'})
     phone = forms.CharField(label='手机号', validators=[mobile_validate, ], error_messages={'required': '当前字段必填!'})
-    pwd = forms.CharField(label='密码', widget=forms.PasswordInput(), error_messages={'required': '当前字段必填!'})
+    pwd = forms.CharField(label='密码', widget=forms.PasswordInput(),
+                          error_messages={'required': '当前字段必填!'})
     re_pwd = forms.CharField(label='重复密码', widget=forms.PasswordInput(), error_messages={'required': '当前字段必填!'})
 
     class Meta:
@@ -152,11 +153,11 @@ class NormalLoginForm(WidgetAttrsForm, forms.Form):
     def clean_email_or_phone(self):
         usr = self.cleaned_data.get('email_or_phone')
         # 密码查询 输入的必须是密文的密码
-        pwd = hashlib.md5(self.cleaned_data.get('pwd').encode('utf-8')).hexdigest()
+        pwd = hashlib.md5(self.request.POST.get('pwd').encode('utf-8')).hexdigest()
         # 组合搜索条件 输入手机或者邮箱来查询用户对象
         usr_obj = RegisterUserInfo.objects.filter(Q(email=usr)|Q(phone=usr)).filter(pwd=pwd).first()
         if not usr_obj:
-            return ValidationError('当前用户名不存在或密码错误!')
+            raise ValidationError('当前用户名不存在或密码错误!')
 
         return usr_obj
 

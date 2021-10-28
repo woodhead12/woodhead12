@@ -1,13 +1,72 @@
 {% extends 'layout/project_manage.html' %}
 {% block css %}
     <style>
-        .project{
+        .project {
             margin-top: 20px;
         }
     </style>
 {% endblock %}
 {% block content %}
     <div class="container project">
-        <a href="" class="btn btn-info">新建项目</a>
+        <a href="" class="btn btn-info" data-toggle="modal" data-target="#myModal" onclick="projectForm.reset()">新建项目</a>
     </div>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel" >项目创建</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="projectForm" name='projectForm' method="post" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <span class="error-msg" style="color: red"></span>
+                            </div>
+                        {% endfor %}
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <input type="button" class="btn btn-primary" style="float: right" value="创建项目"
+                               id="create_project"/>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function () {
+            formCreateProject();
+        })
+
+        function formCreateProject() {
+
+            $('#create_project').click(function () {
+                $.ajax({
+                    url: '/project/list/',
+                    method: 'post',
+                    data: $('#projectForm').serialize(),
+                    success: function (info) {
+                        if (info.status) {
+                            location.reload();
+                        } else {
+                            console.log(info);
+                            $.each(info.error, function (key, value) {
+                                $('#id_' + key).next().text(value[0])
+                            })
+                        }
+                    }
+                })
+            })
+        }
+
+    </script>
 {% endblock %}

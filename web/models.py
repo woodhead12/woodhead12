@@ -6,7 +6,7 @@ from django.db import models
 class RegisterUserInfo(models.Model):
     usr = models.CharField(verbose_name='用户名', max_length=16, db_index=True)
     email = models.EmailField(verbose_name='邮箱', max_length=16)
-    pwd = models.CharField(verbose_name='密码', max_length=16)
+    pwd = models.CharField(verbose_name='密码', max_length=64)
     phone = models.CharField(verbose_name='手机号', max_length=16)
 
 
@@ -72,14 +72,14 @@ class ProjectDetail(models.Model):
         (7, "#20bfa3"),
     )
 
-    name = models.CharField(verbose_name='项目名称', max_length=16)
-    desc = models.CharField(verbose_name='项目描述', max_length=64)
+    name = models.CharField(verbose_name='项目名称', max_length=64)
+    desc = models.CharField(verbose_name='项目描述', max_length=128)
 
     color = models.SmallIntegerField(verbose_name='颜色', choices=COLOR_CHOICES, default=1)
     star = models.BooleanField(verbose_name='星标', default=False)
 
-    member = models.SmallIntegerField(verbose_name='项目参与人数')
-    used_space = models.IntegerField(verbose_name='已使用空间')
+    member = models.SmallIntegerField(verbose_name='项目参与人数', default=1)
+    used_space = models.IntegerField(verbose_name='已使用空间', default=0)
 
     creator = models.ForeignKey(verbose_name='创建者', to='RegisterUserInfo', on_delete=models.DO_NOTHING)
 

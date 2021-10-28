@@ -55,7 +55,7 @@ def normal_login(request):
         if form.is_valid():
             # TODO: 将用户判断的逻辑放在视图中 不写在clean方法中
 
-            request.session['user'] = form.cleaned_data.get('email_or_phone')
+            request.session['user_id'] = form.cleaned_data.get('email_or_phone').id
             return redirect('index')
         else:
             return render(request, 'login.html', {'form': form})
@@ -69,7 +69,7 @@ def get_code(request):
 
     # 获取图片验证码后将code写入session中
     request.session['code'] = code
-    request.session.set_expiry(60)
+    request.session.set_expiry(60*30)
 
     print(code)
     from io import BytesIO
@@ -82,3 +82,9 @@ def get_code(request):
 def login_exit(request):
     request.session.flush()
     return redirect('index')
+
+
+# 首页
+def index(request):
+    print(request.usr)
+    return render(request, 'index.html')
