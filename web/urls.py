@@ -19,4 +19,11 @@ urlpatterns = [
 
     # ======== 项目管理
     re_path(r'^project/list/$', project.project_list, name='project_list'),
+
+    # ======== 星标项目确认
+    re_path(r'^project/star/(?P<project_type>\w+)/(?P<project_id>\d+)/$', project.project_star, name='project_star'),
+
+    # ======== 星标项目取消
+    re_path(r'^project/star_cancel/(?P<project_type>\w+)/(?P<project_id>\d+)/$', project.project_star_cancel,
+            name='project_star_cancel'),
 ]
