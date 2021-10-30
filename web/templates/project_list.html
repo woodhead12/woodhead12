@@ -72,12 +72,12 @@
             <div class="panel-body">
                 {% for project in project_dict.star %}
                     <div class="item">
-                        <a href="#" class="title"
+                        <a href="{% url 'dashboard' project_id=project.id %}" class="title"
                            style="background-color: {{ project.get_color_display }}">{{ project.name }}</a>
 
                         <div class="info">
                             <div>
-                                <a href="{% url 'project_star_cancel' project_type=project.class_type project_id=project.id %}">
+                                <a href="{% url 'project_star' project_type=project.class_type project_id=project.id %}">
                                     <i class="fa fa-star" aria-hidden="true" style="color: #f0ad4e"></i>
                                 </a>
                                 <span>{{ project.creator.usr }}</span>

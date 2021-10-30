@@ -1,0 +1,5 @@
+<ul class="nav navbar-nav">
+    {% for url_dict in menu_list %}
+        <li class="{{ url_dict.style }}"><a href="{{ url_dict.url }}">{{ url_dict.title }}</a></li>
+    {% endfor %}
+</ul>

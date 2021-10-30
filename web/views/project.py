@@ -47,18 +47,13 @@ def project_star(request, project_type, project_id):
     if project_type == 'my':
         models.ProjectDetail.objects.filter(id=project_id, creator=request.usr).update(star=True)
         return redirect('project_list')
-    elif project_type == 'join':
+    if project_type == 'join':
         models.InProjectDetail.objects.filter(project_id=project_id, usr=request.usr).update(star=True)
         return redirect('project_list')
 
-
-def project_star_cancel(request, project_type, project_id):
-    """
-    星标取消
-    """
     if project_type == 'my_project':
         models.ProjectDetail.objects.filter(id=project_id, creator=request.usr).update(star=False)
         return redirect('project_list')
-    elif project_type == 'join_project':
+    if project_type == 'join_project':
         models.InProjectDetail.objects.filter(project_id=project_id, usr=request.usr).update(star=False)
         return redirect('project_list')

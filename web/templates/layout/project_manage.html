@@ -1,4 +1,5 @@
 {% load static %}
+{% load project %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'plugin/bs/css/bootstrap.css' %}">
     <script src="{% static 'js/jquery.js' %}"></script>
     <script src="{% static 'plugin/bs/js/bootstrap.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'plugin/font-awesome/css/font-awesome.min.css'%}">
+    <link rel="stylesheet" href="{% static 'plugin/font-awesome/css/font-awesome.min.css' %}">
     <!-- 公共模板样式 -->
     {% block css %}
 
@@ -29,16 +30,19 @@
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
-                <li><a href="#">Link</a></li>
-            </ul>
+            <!-- inclusion_tag渲染出来的项目菜单 -->
+            {% show_all_projects request %}
+
+            {% if request.project %}
+                {% get_manage_menu request %}
+            {% endif %}
+
             <ul class="nav navbar-nav navbar-right">
 
                 {% if request.flag %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                           aria-expanded="false">{{ request.user }}  <span class="caret"></span></a>
+                           aria-expanded="false">{{ request.user }} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">官网</a></li>
                             <li role="separator" class="divider"></li>

@@ -36,3 +36,23 @@ class LoginMiddlewareMixin(MiddlewareMixin):
             default_service = models.ProjectManageService.objects.filter(id=current_service.service_id).first()
 
         request.service = default_service
+
+    def process_view(self, request, view, args, kwargs):
+        # 判断当前请求url是否是manage开头 如果是则渲染对应的功能菜单
+        if not request.path_info.startswith('/manage/'):
+            return
+
+        # 如果从url参数中获取的project_id 是当前用户自己创建/自己参与的 则给request中添加一个项目参数
+        project_id = kwargs.get('project_id')
+        my_project = models.ProjectDetail.objects.filter(id=project_id, creator=request.usr).first()
+        if my_project:
+            request.project = my_project
+            return
+
+        join_project = models.InProjectDetail.objects.filter(project_id=project_id, usr=request.usr).first()
+        if join_project:
+            request.project = join_project
+            return
+
+        redirect('project_list')
+
