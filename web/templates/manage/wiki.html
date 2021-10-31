@@ -1,1 +1,92 @@
 {% extends 'layout/project_manage.html' %}
+{% block css %}
+    <style>
+        .wiki-menu {
+            border-right: 1px solid lightgrey;
+            min-height: 400px;
+        }
+
+        .wiki-markdown {
+            border-left: 1px solid lightgrey;
+            min-height: 600px;
+            margin-left: -1px;
+        }
+
+        .panel-default .panel-heading {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .wiki-menu-list {
+            margin-top: 20px;
+            padding-left: 20px;
+        }
+
+        .wiki-menu-list ul {
+            padding-left: 20px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div>
+                    wiki
+                </div>
+                <div class="function">
+                    <a href="{% url 'wiki_add' project_id=request.project.id %}" type="button" class="btn btn-success btn-xs">创建wiki</a>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-4 wiki-menu">
+                    目录
+                    <ul class="wiki-menu-list">
+
+                    </ul>
+                </div>
+                <div class="col-sm-8 wiki-markdown">
+                    <div style="text-align: center; margin-top: 60px">
+                        {% if article %}
+                            <div>{{ article.content }}</div>
+                        {% else %}
+                            <h4>
+                                {{ request.project.name }} 的wiki管理
+                            </h4>
+                            <a href="{% url 'wiki_add' project_id=request.project.id %}"><i></i>添加wiki</a>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            getWikiMenu();
+        })
+
+        function getWikiMenu() {
+            let WIKI_MENU_URL = "{% url 'wiki' project_id=request.project.id %}" + "?wiki_id=";
+            $.ajax({
+                url: "{% url 'wiki_menu' project_id=request.project.id %}",
+                method: 'get',
+                dataType: 'JSON',
+                success: function (info) {
+                    $.each(info.articles, function (index, article) {
+                        let li = $('<li>').attr('id', 'id_' + article.id).append($('<a>').attr('href', WIKI_MENU_URL + article.id).text(article.title))
+                        if (!article.parent_wiki_id) {
+                            $('.wiki-menu-list').append(li.append($('<ul>')));
+                        } else {
+                            $('#id_' + article.parent_wiki_id).children('ul').append(li);
+                        }
+                    })
+                }
+            })
+        }
+    </script>
+{% endblock %}

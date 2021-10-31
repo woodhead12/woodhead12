@@ -97,3 +97,13 @@ class InProjectDetail(models.Model):
 
     star = models.BooleanField(verbose_name='星标', default=False)
     create_time = models.DateTimeField(verbose_name='加入时间', auto_now_add=True)
+
+
+class WikiArticle(models.Model):
+    title = models.CharField(verbose_name='标题', max_length=64)
+    content = models.TextField(verbose_name='内容', max_length=128)
+
+    depth = models.SmallIntegerField(verbose_name='文章深度', default=1)
+
+    project = models.ForeignKey(to="ProjectDetail", on_delete=models.DO_NOTHING, null=True, blank=True)
+    parent_wiki = models.ForeignKey(to='self', on_delete=models.DO_NOTHING, null=True, blank=True)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
-from web.views import account, project, manage
+from web.views import account, project, manage, wiki
 
 
 urlpatterns = [
@@ -29,7 +29,13 @@ urlpatterns = [
         re_path(r'^issues/$', manage.issues, name='issues'),
         re_path(r'^statistics/$', manage.statistics, name='statistics'),
         re_path(r'^file/$', manage.file, name='file'),
-        re_path(r'^wiki/$', manage.wiki, name='wiki'),
+
+        re_path(r'^wiki/$', wiki.wiki, name='wiki'),
+        # ======== 添加wiki文件
+        re_path(r'^wiki/add/$', wiki.wiki_add, name='wiki_add'),
+        # ======== 获取项目下对应的wiki文件目录
+        re_path(r'^wiki/menu/$', wiki.wiki_menu, name='wiki_menu'),
+
         re_path(r'^setting/$', manage.setting, name='setting'),
     ], None))
 ]

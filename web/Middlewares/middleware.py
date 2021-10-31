@@ -51,7 +51,7 @@ class LoginMiddlewareMixin(MiddlewareMixin):
 
         join_project = models.InProjectDetail.objects.filter(project_id=project_id, usr=request.usr).first()
         if join_project:
-            request.project = join_project
+            request.project = join_project.project
             return
 
         redirect('project_list')

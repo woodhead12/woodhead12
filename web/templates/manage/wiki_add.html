@@ -1,0 +1,49 @@
+{% extends 'layout/project_manage.html' %}
+{% block css %}
+    <style>
+        .wiki-menu {
+            border-right: 1px solid lightgrey;
+            max-height: 400px;
+        }
+
+        .wiki-markdown {
+            border-left: 1px solid lightgrey;
+            max-height: 600px;
+            margin-left: -1px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                wiki
+            </div>
+
+
+            <div class="panel-body">
+                <div class="col-sm-4 wiki-menu">
+                    目录
+
+                </div>
+
+                <div class="col-sm-8 wiki-markdown">
+                    <form name='projectForm' method="post" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <span class="error-msg" style="color: red">{{ field.error.0 }}</span>
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-default">提交</button>
+                    </form>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
