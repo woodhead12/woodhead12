@@ -24,7 +24,7 @@ urlpatterns = [
     re_path(r'^project/star/(?P<project_type>\w+)/(?P<project_id>\d+)/$', project.project_star, name='project_star'),
 
     # ======== 项目下的功能模块
-    re_path(r'^manage/(?P<project_id>\w+)/', include([
+    re_path(r'^manage/(?P<project_id>\d+)/', include([
         re_path(r'^dashboard/$', manage.dashboard, name='dashboard'),
         re_path(r'^issues/$', manage.issues, name='issues'),
         re_path(r'^statistics/$', manage.statistics, name='statistics'),
@@ -35,6 +35,10 @@ urlpatterns = [
         re_path(r'^wiki/add/$', wiki.wiki_add, name='wiki_add'),
         # ======== 获取项目下对应的wiki文件目录
         re_path(r'^wiki/menu/$', wiki.wiki_menu, name='wiki_menu'),
+        # ======== 删除wiki文件
+        re_path(r'^wiki/delete/(?P<wiki_id>\d+)/$', wiki.wiki_delete, name='wiki_delete'),
+        # ======== 编辑wiki文件
+        re_path(r'^wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
 
         re_path(r'^setting/$', manage.setting, name='setting'),
     ], None))

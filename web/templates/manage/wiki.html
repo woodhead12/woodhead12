@@ -1,5 +1,8 @@
 {% extends 'layout/project_manage.html' %}
+{% load static %}
 {% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor.md-master/css/editormd.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/editor.md-master/css/editormd.preview.min.css' %}">
     <style>
         .wiki-menu {
             border-right: 1px solid lightgrey;
@@ -35,9 +38,15 @@
                 <div>
                     wiki
                 </div>
+
                 <div class="function">
                     <a href="{% url 'wiki_add' project_id=request.project.id %}" type="button" class="btn btn-success btn-xs">创建wiki</a>
+                    {% if article %}
+                        <a href="{% url 'wiki_delete' project_id=request.project.id wiki_id=article.id %}" type="button" class="btn btn-danger btn-xs">删除wiki</a>
+                        <a href="{% url 'wiki_edit' project_id=request.project.id wiki_id=article.id %}" type="button" class="btn btn-info btn-xs">编辑wiki</a>
+                    {% endif %}
                 </div>
+
             </div>
             <div class="panel-body">
                 <div class="col-sm-4 wiki-menu">
@@ -47,9 +56,12 @@
                     </ul>
                 </div>
                 <div class="col-sm-8 wiki-markdown">
-                    <div style="text-align: center; margin-top: 60px">
+                    <div style="text-align: center; margin-top: 20px">
                         {% if article %}
-                            <div>{{ article.content }}</div>
+                            <!-- 实现md的预览效果 -->
+                            <div id="preview-md">
+                                <textarea>{{ article.content }}</textarea>
+                            </div>
                         {% else %}
                             <h4>
                                 {{ request.project.name }} 的wiki管理
@@ -65,9 +77,18 @@
     </div>
 {% endblock %}
 {% block js %}
+    <script src="{% static 'plugin/editor.md-master/editormd.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/jquery.flowchart.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/flowchart.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/marked.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/prettify.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/raphael.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/sequence-diagram.min.js' %}"></script>
+    <script src="{% static 'plugin/editor.md-master/lib/underscore.min.js' %}"></script>
     <script>
         $(function () {
             getWikiMenu();
+            initPreviewEditorMd();
         })
 
         function getWikiMenu() {
@@ -86,6 +107,13 @@
                         }
                     })
                 }
+            })
+        }
+
+        function initPreviewEditorMd() {
+            editormd.markdownToHTML('preview-md', {
+                /* 对mk中输入的内容进行标签过滤 阻止xss攻击 */
+                htmlDecode: "style, script, iframe"
             })
         }
     </script>

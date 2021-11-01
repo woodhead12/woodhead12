@@ -6,10 +6,15 @@ from web import models
 
 
 class WikiModelForm(WidgetAttrsForm, forms.ModelForm):
+
     class Meta:
         model = models.WikiArticle
         # 将关联的项目字段排除 默认创建的时候填入当前url中project_id对应的项目
-        exclude = ['project']
+        exclude = ['project', 'depth']
+
+        widgets = {
+            'content': forms.Textarea(attrs={'cols': '40', 'rows': '20'})
+        }
 
     def __init__(self, request=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -20,3 +25,5 @@ class WikiModelForm(WidgetAttrsForm, forms.ModelForm):
         data_list = models.WikiArticle.objects.filter(project=self.request.project).values_list('id', 'title')
         origin_list.extend(data_list)
         self.fields['parent_wiki'].choices = origin_list
+
+

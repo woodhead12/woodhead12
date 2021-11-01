@@ -1,5 +1,7 @@
 {% extends 'layout/project_manage.html' %}
+{% load static %}
 {% block css %}
+    <link rel="stylesheet" href="{% static 'plugin/editor.md-master/css/editormd.min.css' %}">
     <style>
         .wiki-menu {
             border-right: 1px solid lightgrey;
@@ -10,6 +12,10 @@
             border-left: 1px solid lightgrey;
             max-height: 600px;
             margin-left: -1px;
+        }
+
+        .editormd-fullscreen{
+            z-index: 1001;
         }
     </style>
 {% endblock %}
@@ -33,7 +39,14 @@
                         {% for field in form %}
                             <div class="form-group">
                                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
+                                {% if field.name == 'content' %}
+                                    <div id="editor">
+                                        {{ field }}
+                                    </div>
+                                {% else %}
+                                    {{ field }}
+                                {% endif %}
+
                                 <span class="error-msg" style="color: red">{{ field.error.0 }}</span>
                             </div>
                         {% endfor %}
@@ -46,4 +59,22 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block js %}
+    <script src="{% static 'plugin/editor.md-master/editormd.min.js' %}"></script>
+    <script>
+        /* 初始化md编辑器  将textarea转换为编辑器 */
+        $(function () {
+            initEditorMd();
+        })
+
+        function initEditorMd() {
+            editormd('editor', {
+                placeholder: '请输入内容',
+                height: 300,
+                /* 指定编辑器的依赖js的路径 */
+                path: "{% static 'plugin/editor.md-master/lib/' %}",
+            })
+        }
+    </script>
 {% endblock %}
