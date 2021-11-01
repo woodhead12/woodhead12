@@ -127,6 +127,12 @@ CACHES = {
 
 WITHOUT_AUTH_URL = ['/login/', '/reg/', '/index/', '/sms/login/', '/phone/', '/code/', '/exit/']
 
+COS_SECRET_ID = 'AKIDpUt2uVprd7KGwLTKu41PXP0KNGsDH4cs'
+COS_SECRET_KEY = '0jCOL1ScV7SXLs76oFPIvHNCl34oHTO1'
+COS_REGION = 'ap-nanjing'
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+
 try:
     from .local import *
 except ImportError as e:

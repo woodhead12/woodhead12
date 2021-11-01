@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, reverse
 from django.http import JsonResponse
 from web.forms.wiki import WikiModelForm
 from web import models
+from django.views.decorators.csrf import csrf_exempt
+from utils.tencent.cos import upload_to_bucket
 
 
 def wiki(request, project_id):
@@ -67,3 +69,26 @@ def wiki_edit(request, project_id, wiki_id):
         return redirect("{}?wiki_id={}".format(reverse('wiki', kwargs={'project_id': request.project.id}), wiki_id))
     else:
         return render(request, 'manage/wiki_add.html', {'form': form, 'error': form.errors})
+
+
+@csrf_exempt
+def wiki_upload(request, project_id):
+    upload_file = request.FILES.get('editormd-image-file')
+    project = models.ProjectDetail.objects.filter(id=project_id, creator=request.usr).first()
+
+    result = {
+        'success': 0,
+        'message': None,
+        'url': None
+    }
+    if not upload_file:
+        result['message'] = '文件未上传'
+        return JsonResponse(result)
+
+    upload_to_bucket(project.bucket, upload_file.name, upload_file)
+
+    pic_url = 'https://{}.cos.ap-nanjing.myqcloud.com/{}'.format(project.bucket, upload_file.name)
+    result['success'] = 1
+    result['url'] = pic_url
+
+    return JsonResponse(result)

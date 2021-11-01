@@ -74,6 +74,10 @@
                 height: 300,
                 /* 指定编辑器的依赖js的路径 */
                 path: "{% static 'plugin/editor.md-master/lib/' %}",
+                /* 上传图片设置 */
+                imageUpload: true,
+                imageFormats: ['jpg', 'jpeg', 'png', 'gif'],
+                imageUploadURL: "{% url 'wiki_upload' project_id=request.project.id%}"
             })
         }
     </script>

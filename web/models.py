@@ -83,6 +83,9 @@ class ProjectDetail(models.Model):
 
     creator = models.ForeignKey(verbose_name='创建者', to='RegisterUserInfo', on_delete=models.DO_NOTHING)
 
+    bucket = models.CharField(verbose_name='cos桶', max_length=128)
+    region = models.CharField(verbose_name='cos区域', max_length=16)
+
 
 class InProjectDetail(models.Model):
     """

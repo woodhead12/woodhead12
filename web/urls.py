@@ -39,6 +39,8 @@ urlpatterns = [
         re_path(r'^wiki/delete/(?P<wiki_id>\d+)/$', wiki.wiki_delete, name='wiki_delete'),
         # ======== 编辑wiki文件
         re_path(r'^wiki/edit/(?P<wiki_id>\d+)/$', wiki.wiki_edit, name='wiki_edit'),
+        # ======== wiki中md上传文件
+        re_path(r'^wiki/upload/$', wiki.wiki_upload, name='wiki_upload'),
 
         re_path(r'^setting/$', manage.setting, name='setting'),
     ], None))
