@@ -110,3 +110,23 @@ class WikiArticle(models.Model):
 
     project = models.ForeignKey(to="ProjectDetail", on_delete=models.DO_NOTHING, null=True, blank=True)
     parent_wiki = models.ForeignKey(to='self', on_delete=models.DO_NOTHING, null=True, blank=True)
+
+
+class FileUpdate(models.Model):
+    file_type_choices = (
+        (1, '文件'),
+        (2, '文件夹')
+    )
+
+    file_type = models.SmallIntegerField(verbose_name='文件类型', choices=file_type_choices)
+    name = models.CharField(verbose_name='文件夹名称', max_length=32)
+    key = models.CharField(verbose_name='存储在cos桶中的key', max_length=128, null=True, blank=True)
+    file_size = models.IntegerField(verbose_name='文件大小', null=True, blank=True)
+
+    # 即存储在腾讯桶中的 访问文件的路径
+    file_path = models.CharField(verbose_name='文件路径', max_length=255, null=True, blank=True)
+
+    parent = models.ForeignKey(to='self', on_delete=models.CASCADE, null=True, blank=True, related_name='child')
+    update_user = models.ForeignKey(to='RegisterUserInfo', on_delete=models.DO_NOTHING, verbose_name='最近更新者')
+    update_datetime = models.DateTimeField(verbose_name='最近更新时间', auto_now=True)
+    project = models.ForeignKey(to='ProjectDetail', verbose_name='项目', on_delete=models.DO_NOTHING)

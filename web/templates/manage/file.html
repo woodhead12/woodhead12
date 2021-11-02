@@ -1,1 +1,138 @@
 {% extends 'layout/project_manage.html' %}
+{% block css %}
+    <style>
+        .panel-default .panel-heading {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="panel panel-default">
+            <!-- Default panel contents -->
+            <div class="panel-heading">
+                <div>
+                    文件上传
+                </div>
+
+                <div class="function">
+                    <!-- Button trigger modal -->
+                    <a type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#addFile" data-whatever="创建文件夹">
+                        创建文件夹
+                    </a>
+
+                </div>
+            </div>
+
+            <!-- Table -->
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Username</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                </tr>
+                <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Modal -->
+            <div class="modal fade" id="addFile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form id='addFileForm' name="addFileForm" method="post" novalidate>
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="form-group">
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+
+                                        <span class="error-msg" style="color: red"></span>
+                                    </div>
+                                {% endfor %}
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" id="ajax_post">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        $(function () {
+            initAddModal();
+            updateFileForm();
+        })
+
+        function initAddModal() {
+            $('#addFile').on('show.bs.modal', function (event) {
+                /*
+                通过修改点击弹出模态框的按钮的属性 修改模态框的标题
+                绑定的事件会在渲染出模态框之前触发
+                */
+                var button = $(event.relatedTarget);
+                var recipient = button.data('whatever');
+                var modal = $(this);
+                modal.find('.modal-title').text(recipient);
+                $('#addFileForm')[0].reset();
+                $('#id_name').next().text('');
+
+                /* modal.find('.modal-body input').val(recipient); */
+            })
+        }
+
+        function updateFileForm() {
+            $('#ajax_post').click(function () {
+                $.ajax({
+                    /* ajax提交表单数据 */
+                    url: location.href,
+                    method: 'post',
+                    data: $('#addFileForm').serialize(),
+                    dataType: 'JSON',
+                    success: function (info) {
+                        if (info.status) {
+                            console.log(info);
+                        } else {
+                            console.log(info);
+                            $.each(info.error, function (key, value) {
+                                $('#id_' + key).next().text(value[0])
+                            })
+                        }
+                    }
+                })
+            })
+        }
+    </script>
+{% endblock %}

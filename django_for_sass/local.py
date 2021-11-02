@@ -13,6 +13,8 @@ CACHES = {
     }
 }
 
+# ============ 腾讯云对象存储密钥
 COS_SECRET_ID = 'AKIDpUt2uVprd7KGwLTKu41PXP0KNGsDH4cs'
 COS_SECRET_KEY = '0jCOL1ScV7SXLs76oFPIvHNCl34oHTO1'
 COS_REGION = 'ap-nanjing'
+

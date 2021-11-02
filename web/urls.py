@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
-from web.views import account, project, manage, wiki
+from web.views import account, project, manage, wiki, file
 
 
 urlpatterns = [
@@ -28,7 +28,10 @@ urlpatterns = [
         re_path(r'^dashboard/$', manage.dashboard, name='dashboard'),
         re_path(r'^issues/$', manage.issues, name='issues'),
         re_path(r'^statistics/$', manage.statistics, name='statistics'),
-        re_path(r'^file/$', manage.file, name='file'),
+
+        # ======== 文件上传
+        re_path(r'^file/$', file.file, name='file'),
+
 
         re_path(r'^wiki/$', wiki.wiki, name='wiki'),
         # ======== 添加wiki文件
