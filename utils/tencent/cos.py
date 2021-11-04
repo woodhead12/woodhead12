@@ -19,9 +19,24 @@ client = CosS3Client(config)
 
 
 def create_bucket(bucket):
+    cors_config = {
+        'CORSRule': [{
+            'AllowedOrigin': '*',
+            'AllowedMethod': ['GET', 'PUT', 'HEAD', 'POST', 'DELETE'],
+            'AllowedHeader': '*',
+            'ExposeHeader': '*',
+            'MaxAgeSeconds': 500
+        }]
+    }
+
     client.create_bucket(
         Bucket=bucket,
         ACL='private',
+    )
+
+    client.put_bucket_cors(
+        Bucket=bucket,
+        CORSConfiguration=cors_config
     )
 
 
@@ -31,3 +46,47 @@ def upload_to_bucket(bucket, filename, file):
         Key=filename,
         Body=file
     )
+
+
+def delete_from_bucket(bucket, objects=None, file_key=None):
+    if objects:
+        client.delete_objects(bucket, Delete=objects)
+
+    client.delete_object(bucket, file_key)
+
+
+def credential(bucket, region):
+    from sts.sts import Sts
+
+    config = {
+        # 临时密钥有效时长，单位是秒
+        'duration_seconds': 1800,
+        'secret_id': settings.COS_SECRET_ID,
+        # 固定密钥
+        'secret_key': settings.COS_SECRET_KEY,
+        # 换成你的 bucket
+        'bucket': bucket,
+        # 换成 bucket 所在地区
+        'region': region,
+        # 这里改成允许的路径前缀，可以根据自己网站的用户登录态判断允许上传的具体路径
+        # 例子： a.jpg 或者 a/* 或者 * (使用通配符*存在重大安全风险, 请谨慎评估使用)
+        'allow_prefix': '*',
+        # 密钥的权限列表。简单上传和分片需要以下的权限，其他权限列表请看 https://cloud.tencent.com/document/product/436/31923
+        'allow_actions': [
+
+            # 'name/cos:PutObject',
+            # 'name/cos:PostObject',
+
+            # 'name/cos:InitiateMultipartUpload',
+            # 'name/cos:ListMultipartUploads',
+            # 'name/cos:ListParts',
+            # 'name/cos:UploadPart',
+            # 'name/cos:CompleteMultipartUpload',
+            "*"
+        ],
+    }
+
+    sts = Sts(config)
+    result_dict = sts.get_credential()
+
+    return result_dict

@@ -31,6 +31,12 @@ urlpatterns = [
 
         # ======== 文件上传
         re_path(r'^file/$', file.file, name='file'),
+        # ======== ajax文件删除
+        re_path(r'^file/del/$', file.file_delete, name='file_del'),
+        # ======== 上传文件到cos桶获取临时凭证
+        re_path(r'^cos/credential/$', file.cos, name='cos'),
+        # ======== 文件上传同步到后端
+        re_path(r'^file/post/$', file.file_post, name='file_post'),
 
 
         re_path(r'^wiki/$', wiki.wiki, name='wiki'),

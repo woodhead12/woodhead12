@@ -29,3 +29,12 @@ class FileUploadModelForm(WidgetAttrsForm, forms.ModelForm):
 
         return name
 
+
+class FilePostModelForm(WidgetAttrsForm, forms.ModelForm):
+    etag = forms.CharField(label='etag')
+
+    class Meta:
+        model = models.FileUpdate
+        exclude = ['file_type', 'project', 'update_datetime', 'update_user']
+
+    # TODO: etag文件校验
