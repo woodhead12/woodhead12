@@ -96,14 +96,23 @@
                         <td>{{ file.update_user.usr }}</td>
                         <td>{{ file.update_datetime }}</td>
                         <td>
-                            <a type="button"
-                               data-toggle="modal"
-                               data-target="#addFile"
-                               data-name="{{ file.name }}"
-                               data-folderid="{{ file.id }}"
-                               data-whatever="修改文件夹">
-                                <i class="fa fa-pencil" aria-hidden="true"></i>
-                            </a>
+                            {% if file.file_type == 2 %}
+                                <a type="button"
+                                   data-toggle="modal"
+                                   data-target="#addFile"
+                                   data-name="{{ file.name }}"
+                                   data-folderid="{{ file.id }}"
+                                   data-whatever="修改文件夹"
+                                   class="btn btn-default btn-xs">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'file_download' project_id=request.project.id download_id=file.id %}"
+                                   class="btn btn-default btn-xs download" type="button">
+                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                </a>
+                            {% endif %}
+
                             <a href="" style="padding-left: 10px;"
                                type="button"
                                data-toggle="modal"
@@ -209,7 +218,7 @@
                         <td class="update_usr"></td>
                         <td class="update_datetime"></td>
                         <td>
-                            <a href="" class="btn btn-default btn-xs download">
+                            <a href="" class="btn btn-default btn-xs download" type="button" id="download-file">
                                 <i class="fa fa-cloud-download" aria-hidden="true"></i>
                             </a>
                             <a href="" style="padding-left: 10px;"
@@ -248,6 +257,7 @@
                 var parent = button.data('folderid');
                 var modal = $(this);
                 modal.find('.modal-title').text(recipient);
+
                 /* 如果data-folderid有值 说明这是编辑按钮触发的模态框 */
                 if (parent) {
                     modal.find('#id_name').val(fileName);
@@ -374,8 +384,9 @@
                                 $tr.find('.progress-bar').css('width', perContent);
                             }
                         }
+                        /* 文件上传到cos桶后执行回调函数 */
                         , function (err, data) {
-                            /* 将上传文件的数据提交给后端 */
+                            /* 如果上传成功返回的状态码为200 将上传文件的数据提交给后端 */
                             console.log(err || data);
                             if (data.statusCode && data.statusCode === 200) {
                                 $.post("{% url 'file_post' project_id=request.project.id %}",
@@ -388,18 +399,20 @@
                                         key: (new Date()).getTime() + "_" + fileName,
                                         parent: '{{ parent_obj.id }}',
                                     },
+                                    /* post提交成功后的回调函数 */
                                     function (info) {
                                         /* 数据成功提交到后端 将返回的内容渲染到网页上 */
                                         if (info.status) {
+                                            /* 克隆隐藏在页面上的记录模板 */
                                             var trRecord = $('#hidden_record').find('tr').clone();
                                             console.log(info.result);
-
 
                                             trRecord.find('.name').text(info.result.file_name);
                                             trRecord.find('.file_size').text(info.result.file_size);
                                             trRecord.find('.update_usr').text(info.result.update_usr);
                                             trRecord.find('.update_datetime').text(info.result.update_datetime);
                                             trRecord.find('.delete').attr('data-delid', info.result.id)
+                                            trRecord.find('#download-file').attr('href', info.result.download_path);
 
                                             $('#record_table').append(trRecord);
                                             /* 文件上传完成 且记录添加到后台 后台返回数据局部刷新到页面上之后 删除进度条 */

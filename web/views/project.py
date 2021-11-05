@@ -16,8 +16,8 @@ def project_list(request):
 
         if form.is_valid():
             # 在创建项目前创建桶
-            # project_name = form.cleaned_data['name']
-            bucket_name = '{}-{}-1300119432'.format(request.usr.phone, str(int(time.time())))
+            project_name = form.cleaned_data['name']
+            bucket_name = '{}-{}-{}-1300119432'.format(project_name, request.usr.phone, str(int(time.time())))
 
             create_bucket(bucket_name)
 

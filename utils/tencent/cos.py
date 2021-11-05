@@ -2,6 +2,7 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import sys
 import logging
+from qcloud_cos.cos_exception import CosServiceError
 
 from django.conf import settings
 
@@ -90,3 +91,45 @@ def credential(bucket, region):
     result_dict = sts.get_credential()
 
     return result_dict
+
+
+def delete_bucket(bucket, region):
+    try:
+        # 先删除文件
+        while True:
+            files = client.list_objects(bucket)
+            # 如果value有值 说明文件没有全部获取
+            value = files.get('Contents')
+
+            if not value:
+                break
+
+            # 构建批量删除文件的数据结构
+            objects = {
+                'Quiet': 'true',
+                'Object': [{'Key': file['Key']} for file in files]
+            }
+
+            client.delete_objects(bucket, objects=objects)
+
+            if files['IsTruncated'] == 'false':
+                break
+
+        # 再删除文件碎片 即分块上传大文件时中断上传产生的文件碎片
+        while True:
+            pieces = client.list_multipart_uploads(bucket)
+            value = pieces.get('Upload')
+
+            if not value:
+                break
+
+            for piece in pieces:
+                client.abort_multipart_upload(bucket, piece['Key'], piece['UploadId'])
+
+            if pieces['IsTruncated'] == 'false':
+                break
+
+            client.delete_bucket(bucket)
+    except CosServiceError as e:
+        pass
+

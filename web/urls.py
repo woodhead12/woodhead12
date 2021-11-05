@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
-from web.views import account, project, manage, wiki, file
+from web.views import account, project, manage, wiki, file, setting
 
 
 urlpatterns = [
@@ -37,6 +37,8 @@ urlpatterns = [
         re_path(r'^cos/credential/$', file.cos, name='cos'),
         # ======== 文件上传同步到后端
         re_path(r'^file/post/$', file.file_post, name='file_post'),
+        # ======== 文件下载
+        re_path(r'^file/download/(?P<download_id>\w+)$', file.file_download, name='file_download'),
 
 
         re_path(r'^wiki/$', wiki.wiki, name='wiki'),
@@ -51,6 +53,10 @@ urlpatterns = [
         # ======== wiki中md上传文件
         re_path(r'^wiki/upload/$', wiki.wiki_upload, name='wiki_upload'),
 
-        re_path(r'^setting/$', manage.setting, name='setting'),
+        # ======== 配置相关操作
+        re_path(r'^setting/$', setting.setting, name='setting'),
+        # ======== 配置中删除项目
+        re_path(r'^setting/delete/$', setting.setting_delete, name='setting_delete'),
+
     ], None))
 ]

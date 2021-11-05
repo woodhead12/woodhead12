@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, HttpResponse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from web import models
@@ -145,7 +145,26 @@ def file_post(request, project_id):
             'file_size': instance.file_size,
             'update_usr': instance.update_user.usr,
             'update_datetime': instance.update_datetime,
+            'download_path': instance.file_path,
         }
 
         return JsonResponse({'status': True, 'result': result})
     return JsonResponse({'status': True})
+
+
+def file_download(request, project_id, download_id):
+    # 如果当前要下载的文件对象不是当前项目中的 则不允许下载
+    download_file = models.FileUpdate.objects.filter(project_id=project_id, id=download_id).first()
+    if not download_file:
+        return HttpResponse('404!')
+
+    import requests
+
+    # 向数据库中存储文件访问字段中的file_path存储的地址发送请求
+    data = requests.get(url=download_file.file_path)
+    response = HttpResponse(data.content, content_type='appliaction/octet-stream')
+    response['Content-Disposition'] = "attachment; filename={}".format(download_file.name)
+
+    return response
+
+
