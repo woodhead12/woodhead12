@@ -19,10 +19,18 @@ def mobile_validate(value):
 
 
 class WidgetAttrsForm:
+    class_exclude = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+            if name in self.class_exclude:
+                continue
+
+            # IssueModelForm中的select样式先渲染 当WidgetAttrsForm再初始化样式的时候
+            # select样式被 form-control覆盖了 所以需要获取先渲染的样式 然后添加在 form-control后面
+            old_class = field.widget.attrs.get('class', '')
+            field.widget.attrs['class'] = 'form-control {}'.format(old_class)
             field.widget.attrs['placeholder'] = '请输入{}'.format(field.label)
 
 

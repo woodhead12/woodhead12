@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
-from web.views import account, project, manage, wiki, file, setting
+from web.views import account, project, manage, wiki, file, setting, issues
 
 
 urlpatterns = [
@@ -26,7 +26,6 @@ urlpatterns = [
     # ======== 项目下的功能模块
     re_path(r'^manage/(?P<project_id>\d+)/', include([
         re_path(r'^dashboard/$', manage.dashboard, name='dashboard'),
-        re_path(r'^issues/$', manage.issues, name='issues'),
         re_path(r'^statistics/$', manage.statistics, name='statistics'),
 
         # ======== 文件上传
@@ -57,6 +56,9 @@ urlpatterns = [
         re_path(r'^setting/$', setting.setting, name='setting'),
         # ======== 配置中删除项目
         re_path(r'^setting/delete/$', setting.setting_delete, name='setting_delete'),
+
+        # ======== 问题展示
+        re_path(r'^issues/$', issues.issues, name='issues'),
 
     ], None))
 ]
