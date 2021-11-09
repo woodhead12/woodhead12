@@ -25,6 +25,15 @@ def project_list(request):
             form.instance.region = settings.COS_REGION
 
             form.instance.creator = request.usr
+
+            # 创建项目的同时给项目即将创建的问题创建问题类型
+            issue_types = ['功能', 'bug', '其他']
+            issue_obj = []
+            for issue_type in issue_types:
+                issue_obj.append(models.IssuesType(project=form.instance, title=issue_type))
+
+            models.IssuesType.objects.bulk_create(issue_obj)
+
             form.save()
             return JsonResponse({'status': True})
         else:

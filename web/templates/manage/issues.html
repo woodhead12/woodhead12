@@ -1,10 +1,12 @@
 {% extends 'layout/project_manage.html' %}
 {% load static %}
+{% load issues %}
 {% block css %}
     <link rel="stylesheet" href="{% static 'plugin/editor.md-master/css/editormd.min.css' %}">
     <link href="{% static 'plugin/bootstrap-datepicker-master/dist/css/bootstrap-datepicker.min.css' %}" rel="stylesheet">
     <link href="{% static 'plugin/bootstrap-datepicker-master/dist/css/bootstrap-datepicker.standalone.min.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'plugin/bootstrap-select/dist/css/bootstrap-select.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugin/select2-4.0.12/dist/css/select2.min.css' %}">
     <style>
         .issues-list .number {
             width: 100px;
@@ -79,7 +81,7 @@
                 <div class="panel-heading">
                     <i class="fa fa-search" aria-hidden="true"></i> 筛选
                 </div>
-                <!--
+
                 <div class="panel-body filter-area">
                     {% for row in filter_list %}
                         <div class="item">
@@ -92,7 +94,7 @@
                         </div>
                     {% endfor %}
 
-                </div>-->
+                </div>
             </div>
         </div>
         <div class="col-sm-9">
@@ -104,61 +106,61 @@
                     <a class="btn btn-success btn-sm" data-toggle="modal" data-target="#addModal">新建问题</a>
                     <a class="btn btn-primary btn-sm" data-toggle="modal" data-target="#inviteModal">邀请成员</a>
                 </div>
+                <!-- 分页显示的记录 -->
                 <table class="table">
-
                     <tbody class="issues-list">
-                    {#                    {% for item in issues_object_list %}#}
-                    {#                        <tr>#}
-                    {#                            <td class="number">#}
-                    {#                                <i class="fa fa-circle text-{{ item.priority }}"></i>#}
-                    {#                                <a target="_blank"#}
-                    {#                                   href="{% url 'issues_detail' project_id=request.tracer.project.id issues_id=item.id %}">{% string_just item.id %}</a>#}
-                    {#                            </td>#}
-                    {#                            <td class="issue">#}
-                    {#                                <div>#}
-                    {#                                    <a target="_blank"#}
-                    {#                                       href="{% url 'issues_detail' project_id=request.tracer.project.id issues_id=item.id %}">{{ item.subject }}</a>#}
-                    {#                                </div>#}
-                    {#                                <div class="tags">#}
-                    {#                                    <span class="type">#}
-                    {#                                        {{ item.issues_type.title }}#}
-                    {#                                    </span>#}
-                    {#                                    <span>#}
-                    {#                                        <i class="fa fa-refresh" aria-hidden="true"></i>#}
-                    {#                                        {{ item.get_status_display }}#}
-                    {#                                    </span>#}
-                    {#                                    {% if item.assign %}#}
-                    {#                                        <span>#}
-                    {#                                        <i class="fa fa-hand-o-right" aria-hidden="true"></i>#}
-                    {#                                        {{ item.assign.username }}#}
-                    {#                                    </span>#}
-                    {#                                    {% endif %}#}
-                    {##}
-                    {#                                    <span>#}
-                    {#                                        <i class="fa fa-user-o" aria-hidden="true"></i>#}
-                    {#                                        {{ item.creator.username }}#}
-                    {#                                    </span>#}
-                    {#                                    {% if item.end_date %}#}
-                    {#                                        <span><i class="fa fa-calendar"#}
-                    {#                                                 aria-hidden="true"></i> {{ item.end_date }} 截止</span>#}
-                    {#                                    {% endif %}#}
-                    {#                                    <span><i class="fa fa-clock-o"#}
-                    {#                                             aria-hidden="true"></i> {{ item.latest_update_datetime }} 更新</span>#}
-                    {#                                </div>#}
-                    {#                            </td>#}
-                    {#                        </tr>#}
-                    {#                    {% endfor %}#}
+                    {% for item in issues_object_list %}
+                        <tr>
+                            <td class="number">
+                                <i class="fa fa-circle text-{{ item.priority }}"></i>
+                                <a target="_blank"
+                                   href="{% url 'issues_detail' project_id=request.project.id detail_id=item.id %}">{% get_format_number item.id %}</a>
+                            </td>
+                            <td class="issue">
+                                <div>
+                                    <a target="_blank"
+                                       href="{% url 'issues_detail' project_id=request.project.id detail_id=item.id %}">{{ item.subject }}</a>
+                                </div>
+                                <div class="tags">
+                                    <span class="type">
+                                        {{ item.issues_type.title }}
+                                    </span>
+                                    <span>
+                                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                                        {{ item.get_status_display }}
+                                    </span>
+                                    {% if item.assign %}
+                                        <span>
+                                             <i class="fa fa-hand-o-right" aria-hidden="true"></i>
+                                             {{ item.assign.usr }}
+                                        </span>
+                                    {% endif %}
+
+                                    <span>
+                                        <i class="fa fa-user-o" aria-hidden="true"></i>
+                                        {{ item.creator.usr }}
+                                    </span>
+                                    {% if item.end_date %}
+                                        <span><i class="fa fa-calendar"
+                                                 aria-hidden="true"></i> {{ item.end_date }} 截止</span>
+                                    {% endif %}
+                                    <span><i class="fa fa-clock-o"
+                                             aria-hidden="true"></i> {{ item.latest_update_datetime }} 更新</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
 
                     </tbody>
                 </table>
             </div>
 
-            <!--
+            <!-- 后端返回的分页html -->
             <nav aria-label="...">
                 <ul class="pagination" style="margin-top: 0;">
                     {{ page_html|safe }}
                 </ul>
-            </nav>-->
+            </nav>
 
         </div>
 
@@ -345,7 +347,7 @@
     </div>
 
 
-    <!-- <div class="modal fade in" id="inviteModal" role="dialog">
+    <div class="modal fade in" id="inviteModal" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -366,6 +368,8 @@
                         {% endfor %}
                         <button type="button" class="btn btn-success" id="btnGenInviteCode">生成邀请码</button>
                     </form>
+
+                    <!-- 点击生成邀请码 移除hide类样式 -->
                     <div id="inviteArea" class="hide">
                         <hr/>
                         <div class="form-group">
@@ -384,7 +388,7 @@
 
             </div>
         </div>
-    </div> -->
+    </div>
 
 {% endblock %}
 
@@ -395,14 +399,22 @@
     <script src="{% static 'plugin/bootstrap-datepicker-master/dist/locales/bootstrap-datepicker.zh-CN.min.js' %}"></script>
     <script src="{% static 'plugin/bootstrap-select/dist/js/bootstrap-select.min.js' %}"></script>
     <script src="{% static 'plugin/bootstrap-select/js/i18n/defaults-zh_CN.js' %}"></script>
+    <script src="{% static 'plugin/select2-4.0.12/dist/js/select2.min.js' %}"></script>
+    <script src="{% static 'plugin/select2-4.0.12/dist/js/i18n/zh-CN.js' %}"></script>
 
     <script>
+        var WIKI_UPLOAD_URL = "{% url 'wiki_upload' project_id=request.project.id %}";
         var POST_ISSUES = "{% url 'issues' project_id=request.project.id %}";
+        var INVITE_URL = "{% url 'invite_url' project_id=request.project.id %}";
 
         $(function () {
             bindBootStrapShownEvent();
             initDatePicker();
             bindAddSubmit();
+
+            bindClickCheckFilter();
+            initSelect2();
+            btnClickInviteCode();
         });
 
         /*
@@ -460,6 +472,58 @@
                     }
                 })
             });
+        }
+
+        /* 点击checkbox页面没有跳转 因为checkbox优先级非常高 只有点标签才可以跳转
+           如果要让整个a标签点击有效 就要绑定时间 */
+        function bindClickCheckFilter() {
+            /* 找到过滤区域中所有的checkbox */
+            $('.filter-area').find(":checkbox").click(function () {
+                location.href = $(this).parent().attr('href');
+            })
+        }
+
+        /* select2插件 当点击选择项 进行网页跳转 */
+        function initSelect2() {
+            $('.select2').select2({}).on('select2:select', function (e) {
+                /* e为事件 包含当前点击选择项的所有参数 */
+                /* 选中某一项触发 */
+                location.href = e.params.data.id;
+            }).on('select2:unselect', function (e) {
+                /* 移除某一项触发 */
+                location.href = e.params.data.id;
+            });
+        }
+
+        function btnClickInviteCode() {
+            $('#btnGenInviteCode').click(function () {
+                $('.error-msg').empty();
+                $.ajax({
+                    url: INVITE_URL,
+                    type: "POST",
+                    data: $('#inviteForm').serialize(),
+                    dataType: "JSON",
+                    success: function (res) {
+                        if (res.status) {
+                            $('#inviteArea').removeClass('hide').find('#inviteUrl').val(res.data);
+                        } else {
+                            $.each(res.error, function (k, v) {
+                                $('#id_' + k).next('.error-msg').text(v[0]);
+                            })
+                        }
+                    }
+                })
+            })
+        }
+
+        function bindCopyUrl(){
+            $('#btnCopyUrl').click(function () {
+                var textInput = $('#inviteUrl')[0];
+
+                textInput.select();
+                document.execCommand("Copy");
+                alert('复制成功');
+            })
         }
     </script>
 {% endblock %}

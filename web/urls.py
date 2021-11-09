@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from web.views import account, project, manage, wiki, file, setting, issues
 
-
 urlpatterns = [
     re_path(r'^phone/$', account.send_code, name='sms'),
     re_path(r'^reg/$', account.reg, name='reg'),
@@ -39,7 +38,6 @@ urlpatterns = [
         # ======== 文件下载
         re_path(r'^file/download/(?P<download_id>\w+)$', file.file_download, name='file_download'),
 
-
         re_path(r'^wiki/$', wiki.wiki, name='wiki'),
         # ======== 添加wiki文件
         re_path(r'^wiki/add/$', wiki.wiki_add, name='wiki_add'),
@@ -59,6 +57,18 @@ urlpatterns = [
 
         # ======== 问题展示
         re_path(r'^issues/$', issues.issues, name='issues'),
+        # ======== 问题编辑
+        re_path(r'^issues/detail/(?P<detail_id>\w+)$', issues.issues_detail, name='issues_detail'),
+        # ======== 显示问题相关的评论和操作记录
+        re_path(r'^issues/record/(?P<record_id>\w+)$', issues.issues_record, name='issues_record'),
+        # ======== 前端字段的值更新同步后端接口
+        re_path(r'^issues/change/(?P<change_id>\w+)$', issues.issues_change, name='issues_change'),
 
-    ], None))
+        # ======== 获取邀请码接口
+        re_path(r'^invite/url/$', issues.invite_url, name='invite_url'),
+
+    ], None)),
+
+    # ======== 访问邀请码接口
+    re_path(r'^invite/join/(?P<code>\w+)/$', issues.invite_join, name='invite_join'),
 ]

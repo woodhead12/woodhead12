@@ -31,8 +31,8 @@ class ProjectManageService(models.Model):
     price = models.PositiveIntegerField(verbose_name='价格')
     count = models.PositiveIntegerField(verbose_name='项目上限')
     member = models.PositiveIntegerField(verbose_name='邀请成员上限')
-    space = models.PositiveIntegerField(verbose_name='项目空间(M)')
-    file_limit = models.PositiveIntegerField(verbose_name='单文件上传上限')
+    space = models.PositiveIntegerField(verbose_name='项目空间(G)')
+    file_limit = models.PositiveIntegerField(verbose_name='单文件上传上限(M)')
 
     create_time = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
 
@@ -82,7 +82,7 @@ class ProjectDetail(models.Model):
     star = models.BooleanField(verbose_name='星标', default=False)
 
     member = models.SmallIntegerField(verbose_name='项目参与人数', default=1)
-    used_space = models.IntegerField(verbose_name='已使用空间', default=0)
+    used_space = models.IntegerField(verbose_name='已使用空间', default=0, help_text='M')
 
     creator = models.ForeignKey(verbose_name='创建者', to='RegisterUserInfo', on_delete=models.DO_NOTHING)
 
@@ -124,7 +124,7 @@ class FileUpdate(models.Model):
     file_type = models.SmallIntegerField(verbose_name='文件类型', choices=file_type_choices)
     name = models.CharField(verbose_name='文件夹名称', max_length=32)
     key = models.CharField(verbose_name='存储在cos桶中的key', max_length=128, null=True, blank=True)
-    file_size = models.IntegerField(verbose_name='文件大小', null=True, blank=True)
+    file_size = models.IntegerField(verbose_name='文件大小', null=True, blank=True, help_text='byte')
 
     # 即存储在腾讯桶中的 访问文件的路径
     file_path = models.CharField(verbose_name='文件路径', max_length=255, null=True, blank=True)
@@ -206,3 +206,35 @@ class IssuesType(models.Model):
         return self.title
 
 
+class IssuesReply(models.Model):
+    """ 问题回复"""
+
+    reply_type_choices = (
+        (1, '修改记录'),
+        (2, '回复')
+    )
+    reply_type = models.IntegerField(verbose_name='类型', choices=reply_type_choices)
+
+    issues = models.ForeignKey(verbose_name='问题', to='Issues', on_delete=models.DO_NOTHING)
+    content = models.TextField(verbose_name='描述')
+    creator = models.ForeignKey(verbose_name='创建者', to='RegisterUserInfo', related_name='create_reply', on_delete=models.DO_NOTHING)
+    create_datetime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+
+    reply = models.ForeignKey(verbose_name='回复', to='self', null=True, blank=True, on_delete=models.DO_NOTHING)
+
+
+class ProjectInvite(models.Model):
+    """ 项目邀请码 """
+    project = models.ForeignKey(verbose_name='项目', to='ProjectDetail', on_delete=models.DO_NOTHING)
+    code = models.CharField(verbose_name='邀请码', max_length=64, unique=True)
+    count = models.PositiveIntegerField(verbose_name='限制数量', null=True, blank=True, help_text='空表示无数量限制')
+    use_count = models.PositiveIntegerField(verbose_name='已邀请数量', default=0)
+    period_choices = (
+        (30, '30分钟'),
+        (60, '1小时'),
+        (300, '5小时'),
+        (1440, '24小时'),
+    )
+    period = models.IntegerField(verbose_name='有效期', choices=period_choices, default=1440)
+    create_datetime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+    creator = models.ForeignKey(verbose_name='创建者', to='RegisterUserInfo', related_name='create_invite', on_delete=models.DO_NOTHING)
