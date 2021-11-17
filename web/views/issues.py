@@ -124,6 +124,7 @@ def issues(request, project_id):
         issues_type = models.IssuesType.objects.filter(project_id=request.project.id).values_list('id', 'title')
 
         context = {
+            'form': form,
             'invite_form': invite_form,
             'issues_object_list': issues_object_list,
             'page_html': page_object.page_html(),

@@ -125,7 +125,7 @@ CACHES = {
 
 }
 
-WITHOUT_AUTH_URL = ['/login/', '/reg/', '/index/', '/sms/login/', '/phone/', '/code/', '/exit/']
+WITHOUT_AUTH_URL = ['/login/', '/reg/', '/index/', '/sms_login/', '/phone/', '/code/', '/exit/']
 
 COS_SECRET_ID = ''
 COS_SECRET_KEY = ''
